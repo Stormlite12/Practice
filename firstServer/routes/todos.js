@@ -48,7 +48,7 @@ router.get('/:id',async(req,res)=>{
 
 router.get('/stats',async (req,res) =>{
     try{
-        const total= await Todo.countDocuments;
+        const total= await Todo.countDocuments();
         const completed = await Todo.countDocuments({completed:true});
         const pending = total - completed;
         return sendSuccess(res,{total,completed,pending});
