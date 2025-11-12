@@ -40,8 +40,8 @@ describe("Todos API",()=>{
         expect(res.statusCode).toBe(200);
         expect(res.body.success).toBe(true);
      
-        expect(Array.isArray(res.body.data)).toBe(true);
-        expect(res.body.data.length).toBe(1);
+        expect(Array.isArray(res.body.data.data)).toBe(true);
+        expect(res.body.data.data.length).toBe(1);
     });
 
 

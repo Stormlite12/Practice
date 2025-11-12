@@ -11,13 +11,18 @@ router.get('/',async(req,res)=>{
     try{
         const { completed , sort, limit = 10, page=1} = req.query;
         const filter = {};
-        if(completed!==undefined) filter.completed=completed=== "true";
+        if(completed !== undefined) filter.completed = completed=== "true";
     
         const todos = await Todo.find(filter)
         .sort(sort ? {title:sort === "asc" ? 1 : -1}:{})
         .limit(Number(limit))
         .skip((Number(page) - 1)*Number(limit));
-        return sendSuccess(res,todos);
+
+        return sendSuccess(res,{
+            page : Number(page),
+            limit: Number(limit),
+            data:todos}
+        );
     }
     catch(err){
         return sendError(res,"Server Error",500);
