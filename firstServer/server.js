@@ -1,8 +1,10 @@
 const todosRouter = require("./routes/todos");
 const logger = require("./middleware/logger");
-const errorHandler = require("./middleware/e")
+const errorHandler = require("./middleware/errorHandler")
 const validation = require("./middleware/validateTools")
 const mongoose = require("mongoose");
+const auth = require("./routes/auth");
+const authMid = require("./middleware/auth");
 
 
 
@@ -26,9 +28,12 @@ mongoose.connect(process.env.MONGO_URI)
 })
 
 
-app.get('/',res =>{res.send("Server is running")});
+app.get('/',(req,res)=>{
+    res.send("Server is running")}
+);
 app.use(logger);
-app.use('/todos',validation,todosRouter)
+app.use('/auth',auth);
+app.use('/todos',validation,authMid,todosRouter)     
 app.use(errorHandler);
 
 
