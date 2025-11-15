@@ -30,18 +30,6 @@ router.get('/',async(req,res)=>{
     
 });
 
-router.get('/stats',async (req,res) =>{
-    try{
-        const total= await Todo.countDocuments();
-        const completed = await Todo.countDocuments({completed:true});
-        const pending = total - completed;
-        return sendSuccess(res,{total,completed,pending});
-    }
-    catch(err){
-        return sendError(res,"Server Error",500);
-    }
-})
-
 
 // const todo = Todo.find(t=>t.id === parseInt(req.params.id));
 router.get('/:id',async(req,res)=>{
