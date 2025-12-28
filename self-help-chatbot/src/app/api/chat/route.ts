@@ -28,12 +28,21 @@ Keep responses supportive, concise (2-3 paragraphs), and focused on self-help.`;
 
 export async function POST(request: Request) {
     try{
-        const {message} = await request.json();
+        const {message, history = []} = await request.json();
 
         const model = ai.getGenerativeModel({model : "gemini-2.5-flash",
             systemInstruction : systemInstruction
         });
-        const result = await model.generateContent(message);
+        
+        // Start a chat session with history
+        const chat = model.startChat({
+            history: history.map((msg: any) => ({
+                role: msg.sender === 'user' ? 'user' : 'model',
+                parts: [{ text: msg.text.replace(/<[^>]*>/g, '') }] // Strip HTML from history
+            }))
+        });
+        
+        const result = await chat.sendMessage(message);
         const response = await result.response;
         let text = response.text();
 

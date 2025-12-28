@@ -13,7 +13,8 @@ export default function ChatWindow() {
 
     const handleSend = async() => {
         if (!input.trim()) return;
-        setMessages([...messages, { text: input, sender: "user" }]);
+        const userMessage = input;
+        setMessages([...messages, { text: userMessage, sender: "user" }]);
         setInput("");
         setLoading(true);
 
@@ -21,7 +22,10 @@ export default function ChatWindow() {
             const response = await fetch('/api/chat',{
                 method : 'POST',
                 headers : {'Content-Type' : 'application/json'},
-                body : JSON.stringify({message : input})
+                body : JSON.stringify({
+                    message : userMessage,
+                    history : messages
+                })
             });
 
             const data = await response.json();
