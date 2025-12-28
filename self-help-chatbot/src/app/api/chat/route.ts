@@ -43,7 +43,7 @@ export async function POST(request: Request) {
             .replace(/\n\n/g, '</p><p>') // Paragraphs
             .replace(/\n/g, '<br>') // Line breaks
             .replace(/^- (.*?)(<br>|$)/gm, '<li>$1</li>') // List items
-            .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>'); // Wrap lists
+            .replace(/(<li>.*<\/li>)/, '<ul>$1</ul>'); // Wrap lists
 
         text = '<p>' + text + '</p>'; // Wrap in paragraph tags
 
