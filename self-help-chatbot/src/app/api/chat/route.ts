@@ -1,7 +1,7 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextResponse } from 'next/server';
 
-const ai = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
 const systemInstruction = `You are a compassionate self-help chatbot focused ONLY on mental health and personal well-being.
 
@@ -24,42 +24,58 @@ STRICT RULES:
 
 Keep responses supportive, concise (2-3 paragraphs), and focused on self-help.`;
 
-
-
 export async function POST(request: Request) {
-    try{
-        const {message, history = []} = await request.json();
+    try {
+        const { message, history = [] } = await request.json();
 
-        const model = ai.getGenerativeModel({model : "gemini-1.5-flash",
-            systemInstruction : systemInstruction
+        const model = genAI.getGenerativeModel({ 
+            model: "gemini-pro",
+            generationConfig: {
+                temperature: 0.7,
+                maxOutputTokens: 500,
+            }
         });
-        
-        // Start a chat session with history
-        const chat = model.startChat({
-            history: history.map((msg: any) => ({
+
+        // Build conversation history for Gemini
+        const chatHistory = history
+            .filter((msg: any) => msg.text && typeof msg.text === 'string')
+            .map((msg: any) => ({
                 role: msg.sender === 'user' ? 'user' : 'model',
-                parts: [{ text: msg.text.replace(/<[^>]*>/g, '') }] // Strip HTML from history
-            }))
+                parts: [{ text: msg.text.replace(/<[^>]*>/g, '') }]
+            }));
+
+        const chat = model.startChat({
+            history: [
+                {
+                    role: 'user',
+                    parts: [{ text: systemInstruction }]
+                },
+                {
+                    role: 'model',
+                    parts: [{ text: 'I understand. I will focus exclusively on mental health and self-help topics, providing compassionate support while redirecting any off-topic questions.' }]
+                },
+                ...chatHistory
+            ]
         });
-        
+
         const result = await chat.sendMessage(message);
         const response = await result.response;
         let text = response.text();
 
+        // Format the response
         text = text
-            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold
-            .replace(/\*(.*?)\*/g, '<em>$1</em>') // Italic
-            .replace(/\n\n/g, '</p><p>') // Paragraphs
-            .replace(/\n/g, '<br>') // Line breaks
-            .replace(/^- (.*?)(<br>|$)/gm, '<li>$1</li>') // List items
-            .replace(/(<li>.*<\/li>)/, '<ul>$1</ul>'); // Wrap lists
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\*(.*?)\*/g, '<em>$1</em>')
+            .replace(/\n\n/g, '</p><p>')
+            .replace(/\n/g, '<br>')
+            .replace(/^- (.*?)(<br>|$)/gm, '<li>$1</li>')
+            .replace(/(<li>.*<\/li>)/, '<ul>$1</ul>');
 
-        text = '<p>' + text + '</p>'; // Wrap in paragraph tags
+        text = '<p>' + text + '</p>';
 
-        return NextResponse.json({response: text});
-    }
-    catch(error){
+        return NextResponse.json({ response: text });
+    } catch (error) {
         console.error('Error', error);
-        return NextResponse.json({error: 'Failed to generate response'} , {status:500});
+        return NextResponse.json({ error: 'Failed to generate response' }, { status: 500 });
     }
 }
