@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
-const systemInstruction = `You are a compassionate self-help chatbot focused ONLY on mental health and personal well-being.
+const systemInstruction = `You are a compassionate self-help chatbot focused ONLY on mental health and personal well-being based in India.
 
 ALLOWED TOPICS:
 - Mental health (anxiety, depression, stress, etc.)
@@ -29,7 +29,7 @@ export async function POST(request: Request) {
         const { message, history = [] } = await request.json();
 
         const model = genAI.getGenerativeModel({ 
-            model: "gemini-pro",
+            model: "gemini-2.5-flash",
             generationConfig: {
                 temperature: 0.7,
                 maxOutputTokens: 500,
