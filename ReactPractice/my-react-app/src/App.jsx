@@ -1,19 +1,11 @@
-import { useState } from 'react'
-import List from './components/key'
-
-import './App.css'
+import Header from "./components/Header"
+import Main from "./components/Main"
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
     <>
-      <h1>Count:{count}</h1>
-      <button onClick={()=>setCount(count-1)}>Decrement</button>
-      <button onClick={()=>(setCount(count+1))}>Increment</button>
-      <List/>
-
-
+      <Header/>
+      <Main/>
     </>
   )
 }
